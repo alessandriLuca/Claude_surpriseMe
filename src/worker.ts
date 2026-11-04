@@ -1,7 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { Engine, type RoomSummary } from "./game/engine";
 import { PiazzaState, type Visitor } from "./game/piazza";
-import { dayKey, insertScore, validateScore, type ScoreEntry } from "./game/classifica";
+import { LEADERBOARDS, dayKey, insertScore, isBoard, validateScore, type ScoreEntry } from "./game/classifica";
 
 export interface Env {
   ROOMS: DurableObjectNamespace<Room>;
@@ -30,8 +30,8 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
-function classificaStub(env: Env) {
-  return env.CLASSIFICA.get(env.CLASSIFICA.idFromName("affettatrice"));
+function classificaStub(env: Env, board: string) {
+  return env.CLASSIFICA.get(env.CLASSIFICA.idFromName(board));
 }
 
 function piazzaStub(env: Env) {
@@ -72,10 +72,11 @@ export default {
       return info ? json(info) : json({ error: "Stanza inesistente" }, 404);
     }
 
-    if (path === "/api/affettatrice/top" && request.method === "GET") {
-      return json(await classificaStub(env).top());
+    const lb = path.match(/^\/api\/([a-z]+)\/(top|score)$/);
+    if (lb && isBoard(lb[1]) && lb[2] === "top" && request.method === "GET") {
+      return json(await classificaStub(env, lb[1]).top());
     }
-    if (path === "/api/affettatrice/score" && request.method === "POST") {
+    if (lb && isBoard(lb[1]) && lb[2] === "score" && request.method === "POST") {
       let body: unknown;
       try {
         const text = await request.text();
@@ -85,7 +86,7 @@ export default {
         return json({ error: "JSON non valido" }, 400);
       }
       const ip = request.headers.get("CF-Connecting-IP") ?? "local";
-      return json(await classificaStub(env).submit(body, ip));
+      return json(await classificaStub(env, lb[1]).submit(body, ip, LEADERBOARDS[lb[1]].maxPerSec));
     }
 
     if (path === "/api/health") return json({ ok: true });
@@ -342,14 +343,14 @@ export class Classifica extends DurableObject<Env> {
     return { all, today };
   }
 
-  async submit(raw: unknown, ip: string): Promise<{ ok: boolean; rankAll: number; rankToday: number; all: ScoreEntry[]; today: ScoreEntry[]; error?: string }> {
+  async submit(raw: unknown, ip: string, maxPerSec = 12): Promise<{ ok: boolean; rankAll: number; rankToday: number; all: ScoreEntry[]; today: ScoreEntry[]; error?: string }> {
     const now = Date.now();
     const last = this.lastByIp.get(ip) ?? 0;
     const cur = await this.load();
     if (now - last < 3000) return { ok: false, rankAll: 0, rankToday: 0, all: cur.all, today: cur.today, error: "Piano, piano!" };
     this.lastByIp.set(ip, now);
     if (this.lastByIp.size > 5000) this.lastByIp.clear();
-    const e = validateScore(raw, now);
+    const e = validateScore(raw, now, maxPerSec);
     if (!e) return { ok: false, rankAll: 0, rankToday: 0, all: cur.all, today: cur.today, error: "Punteggio non valido" };
     const a = insertScore(cur.all, e);
     const t = insertScore(cur.today, e);

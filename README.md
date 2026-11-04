@@ -20,6 +20,10 @@ Non ci sono app da installare, account da creare o file audio da scaricare: musi
 
 Su `/affettatrice` c'è un arcade a parte: dal tagliere volano pomodori, formaggi, angurie e compagnia, e tu li affetti strisciando il dito (o il mouse). Se ne fai cadere tre è finita, se tocchi un petardo 🧨 perdi una vita, il vino 🍷 vale 5 punti e più tagli in un solo gesto fanno combo. C'è una **classifica globale** di oggi e di sempre (con controlli contro i punteggi impossibili).
 
+### 🐶 Pigna trova il fazzoletto (gioco da solo)
+
+Su `/pigna` guidi Pigna, una cagnolina con un gran naso, per cucina, salotto, giardino, cantina e piazza della sagra. Il fazzoletto è nascosto in uno dei nascondigli: il **naso** in alto diventa sempre più rosso man mano che ti avvicini e Pigna scodinzola più forte. Si gioca toccando una casella (Pigna ci va da sola), con le frecce o scorrendo. Gli ossi 🦴 danno punti, il gatto 🐈 ti fa perdere 5 secondi, «Bau!» indica la strada una volta per livello. I livelli sono infiniti, sempre più grandi e sempre risolvibili, e c'è una classifica tutta sua.
+
 A fine serata ci sono podio, coriandoli e **premi speciali**: *Re della Sagra*, *Riflessi da Gatto*, *Battuta d'Oro*, *Piedi d'Oro*, *Michelangelo di Paese*, *Bugiardo Patentato*, *Il Solito Sospettato*… e *Lava i Piatti* per l'ultimo.
 
 ### Altre cose belle

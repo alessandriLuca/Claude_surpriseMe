@@ -10,11 +10,19 @@ export interface ScoreEntry {
 }
 
 export const BOARD_SIZE = 20;
-/** punti massimi plausibili al secondo (combo comprese) */
-const MAX_POINTS_PER_SEC = 12;
+/** giochi con classifica e punti massimi plausibili al secondo */
+export const LEADERBOARDS = {
+  affettatrice: { maxPerSec: 12 },
+  pigna: { maxPerSec: 80 },
+} as const;
+export type BoardName = keyof typeof LEADERBOARDS;
+
+export function isBoard(name: string): name is BoardName {
+  return Object.prototype.hasOwnProperty.call(LEADERBOARDS, name);
+}
 
 /** Valida un punteggio inviato dal client; null se non è credibile. */
-export function validateScore(raw: any, now: number): ScoreEntry | null {
+export function validateScore(raw: any, now: number, maxPerSec = 12): ScoreEntry | null {
   if (!raw || typeof raw !== "object") return null;
   const { name, avatar } = PiazzaState.identify(raw);
   if (!name) return null;
@@ -22,7 +30,7 @@ export function validateScore(raw: any, now: number): ScoreEntry | null {
   const ms = Number(raw.ms);
   if (!Number.isInteger(score) || score <= 0 || score > 100_000) return null;
   if (!Number.isFinite(ms) || ms < 3000 || ms > 60 * 60 * 1000) return null;
-  if (score > (ms / 1000) * MAX_POINTS_PER_SEC + 30) return null;
+  if (score > (ms / 1000) * maxPerSec + 30) return null;
   return { name, avatar, score, ts: now };
 }
 

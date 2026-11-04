@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <title>Pigna trova il fazzoletto — SAGRA!</title>
+    <meta name="description" content="Aiuta Pigna, la cagnolina, a fiutare il fazzoletto nascosto in giro per casa e per la sagra." />
+    <meta name="theme-color" content="#140b2e" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Lilita+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/affettatrice.css" />
+    <link rel="stylesheet" href="/css/pigna.css" />
+  </head>
+  <body class="pg">
+    <div class="pg-top">
+      <a class="aff-back" href="/" title="Torna alla Sagra">←</a>
+      <div class="pg-info">
+        <div class="pg-level" id="level">Livello 1</div>
+        <div class="pg-room" id="room">La cucina</div>
+      </div>
+      <div class="pg-score" id="score">0</div>
+      <button class="icon-btn" id="btnSound" title="Effetti sonori" aria-label="Effetti sonori">🔊</button>
+    </div>
+    <div class="pg-bars">
+      <div class="pg-time"><span id="timeTxt">60</span><div class="pg-timebar"><i id="timeBar"></i></div></div>
+      <div class="pg-nose" title="Il naso di Pigna: più è rosso, più sei vicino"><span>👃</span><div class="pg-nosebar"><i id="noseBar"></i></div><b id="noseTxt">Freddo</b></div>
+    </div>
+    <div class="pg-stage" id="stage">
+      <canvas id="pgBoard" aria-label="La stanza: tocca una casella per portarci Pigna"></canvas>
+    </div>
+    <div class="pg-controls">
+      <button class="btn small gold" id="btnBark">🐶 Bau! <small>(1 aiutino)</small></button>
+      <span class="pg-hint">Tocca dove vuoi andare · frecce · scorri</span>
+    </div>
+    <div class="aff-overlay" id="overlay"></div>
+    <div class="nonna" id="nonna"></div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <canvas id="confetti"></canvas>
+    <noscript>Serve JavaScript per giocare con Pigna!</noscript>
+    <script type="module" src="/js/pigna.js"></script>
+  </body>
+</html>

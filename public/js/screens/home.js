@@ -171,6 +171,13 @@ export function renderHome(app, presetCode = "") {
       h("span", h("b", "L'Affettatrice"), h("small", "Gioco da solo: affetta al volo tutto quello che vola dal tagliere. Classifica di oggi e di sempre!")),
       h("span.go", "Gioca ›"),
     ),
+    h(
+      "a.aff-promo.pg-promo",
+      { href: "/pigna" },
+      h("span.e", "🐶"),
+      h("span", h("b", "Pigna trova il fazzoletto"), h("small", "Gioco da solo: guida Pigna col suo naso e trova il fazzoletto nascosto. Livelli infiniti e classifica!")),
+      h("span.go", "Gioca ›"),
+    ),
     piazza.el,
     h(
       "div.games-preview",

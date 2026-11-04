@@ -168,6 +168,7 @@ function drawEmoji(e, x, y, r, rot) {
   g.save();
   g.translate(x, y);
   g.rotate(rot);
+  g.fillStyle = "#000"; // le emoji ereditano l'alfa del fillStyle
   g.font = `${r * 2}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
   g.textAlign = "center";
   g.textBaseline = "middle";
