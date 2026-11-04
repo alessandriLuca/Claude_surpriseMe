@@ -3,3 +3,5 @@ node_modules/
 .dev.vars
 e2e/shots/
 *.log
+sagra-progetto.zip
+sagra.bundle
