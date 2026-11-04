@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { HOST_GRACE_MS, INTERLUDE_MS, INTRO_MS, MAX_PLAYERS } from "../src/game/engine";
+import { Engine, HOST_GRACE_MS, INTERLUDE_MS, INTRO_MS, MAX_PLAYERS } from "../src/game/engine";
 import { PAROLE_RARE } from "../src/game/content/bugiardo";
 import { NO_ANSWER } from "../src/game/games/botta";
-import { setup } from "./helpers";
+import { FakeClient, setup } from "./helpers";
 
 describe("lobby", () => {
   it("il primo giocatore diventa host e i nomi duplicati vengono distinti", () => {
@@ -491,5 +491,93 @@ describe("connessioni", () => {
     for (let i = 0; i < 500; i++) a.send({ t: "ping" });
     const pongs = a.msgs.filter((m) => m.t === "pong").length;
     expect(pongs).toBeLessThan(150);
+  });
+});
+
+describe("chat della tavolata", () => {
+  it("i messaggi arrivano a tutti e chi entra riceve la cronologia", () => {
+    const { client } = setup();
+    const a = client("Gino");
+    const b = client("Pina");
+    a.send({ t: "chat", text: "  ciao a tutti!  " });
+    expect(b.last("chat").msg).toMatchObject({ from: a.id, name: "Gino", text: "ciao a tutti!" });
+    const c = client("Ugo");
+    expect(c.last("chatHistory").msgs.map((m: any) => m.text)).toEqual(["ciao a tutti!"]);
+  });
+
+  it("si può chattare anche durante i giochi, ma non troppo in fretta", () => {
+    const { client, clock } = setup();
+    const a = client("Gino");
+    const b = client("Pina");
+    a.send({ t: "start", games: ["espresso"] });
+    a.send({ t: "chat", text: "uno" });
+    a.send({ t: "chat", text: "due" });
+    expect(b.msgs.filter((m) => m.t === "chat").length).toBe(1);
+    clock.advance(700);
+    a.send({ t: "chat", text: "tre" });
+    expect(b.msgs.filter((m) => m.t === "chat").length).toBe(2);
+  });
+
+  it("niente spoiler della parola durante il Pittore", () => {
+    const s = setup(5);
+    const all = [s.client("A"), s.client("B"), s.client("C")];
+    all[0].send({ t: "start", games: ["pittore"], length: 1 });
+    s.clock.advance(INTRO_MS);
+    const drawer = all.find((x) => x.game.isDrawer)!;
+    const other = all.find((x) => x !== drawer)!;
+    drawer.act({ a: "choose", i: 0 });
+    const word = drawer.game.word;
+    drawer.send({ t: "chat", text: `è facile, è un ${word.toUpperCase()}!` });
+    expect(other.last("chat")).toBe(null);
+    expect(drawer.last("toast").text).toMatch(/spoiler/);
+    s.clock.advance(1000);
+    drawer.send({ t: "chat", text: "dai che ce la fate" });
+    expect(other.last("chat").msg.text).toBe("dai che ce la fate");
+  });
+
+  it("l'host decide se la tavolata è pubblica", () => {
+    const { client, engine } = setup();
+    const a = client("Gino");
+    const b = client("Pina");
+    expect(engine.summary().public).toBe(true);
+    b.send({ t: "setPublic", value: false });
+    expect(engine.summary().public).toBe(true);
+    a.send({ t: "setPublic", value: false });
+    expect(engine.summary().public).toBe(false);
+    expect(b.state.isPublic).toBe(false);
+  });
+});
+
+describe("riassunto per la Piazza", () => {
+  it("viene notificato a ogni cambiamento rilevante, con l'host giusto", () => {
+    const { clock } = setup();
+    const out: any[] = [];
+    const e = new Engine({ code: "TEST", scheduler: clock, onSummary: (s) => out.push(s) });
+    const a = new FakeClient(e, "c1");
+    a.join("Luca");
+    expect(out.at(-1)).toMatchObject({ host: "Luca", public: true, players: 1, connected: 1 });
+    a.send({ t: "setPublic", value: false });
+    expect(out.at(-1).public).toBe(false);
+    const n = out.length;
+    a.send({ t: "react", emoji: "🔥" });
+    expect(out.length).toBe(n); // niente di nuovo, niente notifica
+  });
+});
+
+describe("turni personalizzati", () => {
+  it("l'host sceglie quante volte disegna ognuno nel Pittore", () => {
+    const s = setup(5);
+    const [a] = [s.client("A"), s.client("B"), s.client("C")];
+    a.send({ t: "start", games: ["pittore"], length: 1, rounds: { pittore: 3 } });
+    s.clock.advance(INTRO_MS);
+    expect(a.game.turns).toBe(9);
+  });
+
+  it("valori assurdi vengono ignorati", () => {
+    const s = setup(5);
+    const [a] = [s.client("A"), s.client("B")];
+    a.send({ t: "start", games: ["pittore"], length: 1, rounds: { pittore: 99 } });
+    s.clock.advance(INTRO_MS);
+    expect(a.game.turns).toBe(2);
   });
 });

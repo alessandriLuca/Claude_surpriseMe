@@ -54,7 +54,7 @@ export class Pittore implements MiniGame {
     const players = this.ctx.players();
     this.participants = players.map((p) => p.id);
     const humans = players.filter((p) => !p.isBot).map((p) => p.id);
-    const reps = this.ctx.length >= 3 ? 2 : 1;
+    const reps = this.ctx.rounds.pittore ?? (this.ctx.length >= 3 ? 2 : 1);
     let q: string[] = [];
     for (let r = 0; r < reps; r++) q = q.concat(shuffle(humans, this.ctx.rng));
     // con un solo umano disegna più volte
@@ -289,6 +289,16 @@ export class Pittore implements MiniGame {
   private mask(): string {
     if (!this.word) return "";
     return [...this.word.w].map((ch, i) => (/[a-zàèéìòù]/i.test(ch) ? (this.revealed.has(i) ? ch : "_") : ch)).join("");
+  }
+
+  censor(text: string): boolean {
+    if (!this.word || this.phase === "reveal") return false;
+    const t = normalize(text).replace(/ /g, "");
+    if (!t) return false;
+    return [this.word.w, ...(this.word.alt ?? [])].some((w) => {
+      const n = normalize(w).replace(/ /g, "");
+      return n.length >= 2 && (t.includes(n) || (n.length >= 5 && t.includes(n.slice(0, -1))));
+    });
   }
 
   catchUp(): unknown[] {

@@ -1,4 +1,5 @@
 import { sfx } from "../audio.js";
+import { createChatBox } from "../chat.js";
 import { clear, h, storage, toast } from "../ui.js";
 import { AVATARS } from "./home.js";
 
@@ -24,6 +25,7 @@ export const LOBBY = {
     const url = `${location.origin}/${st.code}`;
     let selected = new Set(storage.get("games", null) ?? app.hello?.order ?? ["espresso", "botta", "pittore", "bugiardo", "chi"]);
     let length = storage.get("length", 2);
+    let pittoreRounds = storage.get("pittoreRounds", 2);
     let editing = false;
 
     const playersBox = h("div.players-grid");
@@ -63,10 +65,22 @@ export const LOBBY = {
       ),
     );
 
+    // chat della tavolata, sempre visibile in lobby
+    const chat = createChatBox({
+      placeholder: app.spectator ? "La TV non può scrivere 📺" : "Saluta la tavolata…",
+      isMine: (m) => m.from === app.you,
+      onSend: (text) => app.send({ t: "chat", text }),
+      empty: "Nessuno ha ancora detto niente. Saluta tu!",
+    });
+    chat.setAll(app.roomChat);
+    app.chatViews.add(chat);
+    const visBox = h("div.vis-row");
+
     const right = h(
       "div.stack",
-      h("div.card", h("h2", "Chi c'è a tavola ", countLbl), playersBox),
+      h("div.card", h("h2", "Chi c'è a tavola ", countLbl), playersBox, visBox),
       hostBox,
+      h("div.card.lobby-chat", h("h2", "💬 Due chiacchiere"), chat.el),
     );
 
     root.append(h("div.lobby", left, right));
@@ -189,12 +203,27 @@ export const LOBBY = {
         ),
       );
       const playable = order.filter((k) => selected.has(k) && games[k].minPlayers <= n);
+      const pittoreSeg = h(
+        "div.seg",
+        [1, 2, 3, 4].map((v) =>
+          h("button" + (pittoreRounds === v ? ".sel" : ""), {
+            type: "button",
+            "aria-label": v + " turni a testa",
+            onclick: () => {
+              pittoreRounds = v;
+              storage.set("pittoreRounds", v);
+              sfx("click");
+              renderHost(app.st);
+            },
+          }, String(v)),
+        ),
+      );
       const start = h(
         "button.btn.block.green",
         {
           disabled: playable.length === 0,
           onclick: () => {
-            app.send({ t: "start", games: playable, length });
+            app.send({ t: "start", games: playable, length, rounds: { pittore: pittoreRounds } });
           },
         },
         playable.length ? `🎉 Si comincia! (${playable.length} ${playable.length === 1 ? "gioco" : "giochi"})` : "Scegli almeno un gioco",
@@ -206,6 +235,9 @@ export const LOBBY = {
           h("p.muted", { style: { marginTop: 0 } }, "Sei l'host: scegli i giochi e la durata."),
           toggles,
           h("div.row", { style: { marginTop: "14px", justifyContent: "space-between" } }, h("label.lbl", { style: { margin: 0 } }, "Durata"), seg),
+          playable.includes("pittore")
+            ? h("div.row", { style: { marginTop: "10px", justifyContent: "space-between" } }, h("label.lbl", { style: { margin: 0 } }, "🎨 Disegni a testa nel Pittore"), pittoreSeg)
+            : null,
           h(
             "div.row",
             { style: { marginTop: "14px" } },
@@ -217,11 +249,34 @@ export const LOBBY = {
       );
     };
 
+    const renderVis = (st) => {
+      if (app.isHost && !app.spectator) {
+        const cb = h("input", {
+          type: "checkbox",
+          checked: st.isPublic,
+          onchange: (e) => {
+            app.send({ t: "setPublic", value: e.target.checked });
+            sfx("click");
+          },
+        });
+        visBox.replaceChildren(
+          h("label.switch", cb, h("span.slider"), h("span.lbl-text", st.isPublic ? "🌍 Visibile nella Piazza: chiunque può sedersi" : "🔒 Tavolata privata: si entra solo col codice")),
+        );
+      } else {
+        visBox.replaceChildren(h("p.muted", { style: { margin: "10px 0 0", fontSize: "14px" } }, st.isPublic ? "🌍 Tavolata pubblica: compare nella Piazza" : "🔒 Tavolata privata"));
+      }
+    };
+
     renderPlayers(st);
     renderHost(st);
+    renderVis(st);
     return {
+      destroy() {
+        app.chatViews.delete(chat);
+      },
       update(st, prev) {
         renderPlayers(st);
+        if (prev?.isPublic !== st.isPublic || prev?.hostId !== st.hostId) renderVis(st);
         const hostChanged = prev?.hostId !== st.hostId;
         const countChanged = prev?.players.length !== st.players.length;
         if (hostChanged || countChanged) renderHost(st);

@@ -62,6 +62,8 @@ export interface GameContext {
   now(): number;
   /** numero di "giri" scelto dall'host: 1 corta, 2 normale, 3 lunga */
   length: number;
+  /** giri scelti dall'host per singolo gioco (es. quante volte disegna ognuno nel Pittore) */
+  rounds: Partial<Record<GameKind, number>>;
   /** assegna un premio speciale da mostrare nel finale */
   award(a: { title: string; emoji: string; playerId: string; why: string }): void;
   /** effetto sonoro/visivo per tutti */
@@ -75,6 +77,8 @@ export interface MiniGame {
   view(playerId: string | null): unknown;
   onAction(playerId: string, action: any): void;
   onPlayerLeft?(playerId: string): void;
+  /** true se un messaggio della chat generale rivelerebbe un segreto del gioco */
+  censor?(text: string): boolean;
   /** stato iniziale di eventuali dati incrementali (es. tratti del disegno) */
   catchUp?(playerId: string): unknown[];
 }

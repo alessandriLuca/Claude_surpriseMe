@@ -20,6 +20,11 @@ A fine serata ci sono podio, coriandoli e **premi speciali**: *Re della Sagra*, 
 
 ### Altre cose belle
 
+- **La Piazza** nella home: vedi le tavolate aperte a tutti e ti siedi con un tocco, senza codice. C'è il contatore di chi sta giocando e una chat comune per trovare compagnia.
+- **Chat della tavolata** sempre aperta, anche durante i giochi, con il contatore dei messaggi non letti. Nel Pittore la parola segreta viene bloccata: niente spoiler.
+- **Tavolata pubblica o privata**: lo decide l'host con un interruttore. Le private non compaiono nella Piazza.
+- **Turni su misura**: oltre alla durata generale, l'host sceglie quante volte disegna ognuno nel Pittore (da 1 a 4).
+
 - **Codice stanza + QR code** per entrare al volo; link condivisibile.
 - **Modalità TV** (`/CODICE?tv=1`): uno schermo grande che mostra la partita a tutti, come al bar.
 - **I cugini-bot**: pochi a tavola? L'host aggiunge "Zio Peppino" e compagnia, che rispondono, votano e indovinano (male).
@@ -90,9 +95,10 @@ node e2e/run.mjs http://127.0.0.1:8787
 
 ```
 src/
-  worker.ts            Worker: API /api/rooms, WebSocket, file statici
+  worker.ts            Worker: API, Durable Object Room (una per tavolata) e Piazza (unica)
   game/
-    engine.ts          motore della stanza: giocatori, host, fasi, bot, punteggi
+    engine.ts          motore della stanza: giocatori, host, fasi, bot, punteggi, chat
+    piazza.ts          registro delle tavolate pubbliche e chat della home
     games/*.ts         i 6 minigiochi (logica autoritativa lato server)
     content/*.ts       spunti, parole, battute della nonna (tutto a mano)
 public/
@@ -109,5 +115,6 @@ e2e/run.mjs            partita completa con browser veri (Playwright)
 - I timer sono lato server; il client stima lo sfasamento dell'orologio con un ping per mostrare i conti alla rovescia giusti.
 - In Espresso Express il tempo di reazione è misurato sul telefono, con controlli lato server contro chi bara (niente tap prima del via, niente riflessi sotto i 90 ms). Nella Pigiatura il server limita le pestate a 20 al secondo, così gli autoclicker non servono.
 - Le stanze vuote vengono sgomberate automaticamente dopo 30 minuti.
+- La Piazza è un unico Durable Object: le stanze le mandano un riassunto quando cambiano (e un segnale di vita ogni 40 s); lei lo inoltra in tempo reale a chi è in home.
 
 Licenza MIT. Fatto con amore, ragù e Cloudflare Workers.

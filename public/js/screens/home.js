@@ -1,5 +1,6 @@
 import { sfx, unlockAudio } from "../audio.js";
 import { createRoom, roomExists } from "../net.js";
+import { createPiazza } from "../piazza.js";
 import { clear, h, storage, toast } from "../ui.js";
 
 export const AVATARS = [
@@ -24,6 +25,8 @@ const SUBS = [
 ];
 
 export function renderHome(app, presetCode = "") {
+  app.piazza?.destroy();
+  app.piazza = null;
   const root = clear(app.root);
   let avatar = storage.get("avatar") || AVATARS[Math.floor(Math.random() * AVATARS.length)];
   const name = h("input.field", {
@@ -45,6 +48,7 @@ export function renderHome(app, presetCode = "") {
           for (const b of picker.children) b.classList.remove("sel");
           e.currentTarget.classList.add("sel");
           sfx("click");
+          app.piazza?.hello();
         },
       }, a),
     ),
@@ -105,6 +109,27 @@ export function renderHome(app, presetCode = "") {
 
   const last = storage.get("lastRoom");
 
+  // la Piazza: tavolate pubbliche e chat della home
+  const piazza = createPiazza({
+    identity: () => ({ name: name.value.trim(), avatar }),
+    onJoin: async (c) => {
+      unlockAudio();
+      const n = getName();
+      if (!n) return;
+      if (!(await roomExists(c))) {
+        toast("Questa tavolata ha appena sparecchiato. Provane un'altra!", "err");
+        return;
+      }
+      app.joinRoom(c, { name: n, avatar });
+    },
+  });
+  app.piazza = piazza;
+  let helloTimer = null;
+  name.addEventListener("input", () => {
+    clearTimeout(helloTimer);
+    helloTimer = setTimeout(() => piazza.hello(), 600);
+  });
+
   root.append(
     h(
       "section.hero",
@@ -139,6 +164,7 @@ export function renderHome(app, presetCode = "") {
         ),
       ),
     ),
+    piazza.el,
     h(
       "div.games-preview",
       PREVIEW.map(([e, t, s]) => h("div.gp", h("div.e", e), h("b", t), h("small", s))),

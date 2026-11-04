@@ -7,6 +7,7 @@ import { BOTTA } from "./screens/botta.js";
 import { BUGIARDO } from "./screens/bugiardo.js";
 import { CHI } from "./screens/chi.js";
 import { ESPRESSO } from "./screens/espresso.js";
+import { createChatBox } from "./chat.js";
 import { renderHome } from "./screens/home.js";
 import { LOBBY } from "./screens/lobby.js";
 import { PIGIATURA } from "./screens/pigiatura.js";
@@ -24,7 +25,10 @@ export const app = {
   you: null,
   spectator: false,
   screen: null, // { key, api }
+  piazza: null,
   drawLog: [],
+  roomChat: [],
+  chatViews: new Set(), // altre chat che mostrano i messaggi della tavolata (es. nella lobby)
   root: document.getElementById("app"),
   get isHost() {
     return !!this.st && this.st.hostId === this.you;
@@ -56,6 +60,7 @@ function boot() {
   drawLights();
   initNonna();
   setupTopbar();
+  setupRoomChat();
   setupReactions();
   requestAnimationFrame(timerLoop);
   document.addEventListener("pointerdown", unlockAudio, { once: false, passive: true });
@@ -88,6 +93,8 @@ function goHome() {
   document.body.classList.remove("tv");
   document.getElementById("codePill").classList.add("hidden");
   document.getElementById("btnScores").classList.add("hidden");
+  document.getElementById("btnChat").classList.add("hidden");
+  document.getElementById("chatPanel").classList.remove("open");
   document.getElementById("reactBar").classList.add("hidden");
   document.getElementById("connBanner").classList.add("hidden");
   hideTimer();
@@ -99,6 +106,8 @@ function goHome() {
 
 /** Entra in una stanza. opts: { name, avatar, spectator } */
 function joinRoom(code, opts) {
+  app.piazza?.destroy();
+  app.piazza = null;
   app.net?.close();
   app.code = code;
   app.spectator = !!opts.spectator;
@@ -108,7 +117,11 @@ function joinRoom(code, opts) {
   pill.textContent = code;
   pill.classList.remove("hidden");
   document.getElementById("btnScores").classList.remove("hidden");
+  document.getElementById("btnChat").classList.remove("hidden");
   if (!app.spectator) document.getElementById("reactBar").classList.remove("hidden");
+  app.roomChat = [];
+  roomChatBox?.setAll([]);
+  setUnread(0);
 
   clear(app.root).appendChild(h("div.big-wait.on-night", h("div.e", "🍝"), h("h2", "Apparecchio la tavola…")));
 
@@ -208,6 +221,14 @@ function onMessage(m) {
       sfx("pop");
       break;
     }
+    case "chatHistory":
+      app.roomChat = m.msgs.slice();
+      roomChatBox?.setAll(app.roomChat);
+      for (const v of app.chatViews) v.setAll(app.roomChat);
+      break;
+    case "chat":
+      onRoomChat(m.msg);
+      break;
     case "toast":
       toast(m.text);
       break;
@@ -314,6 +335,70 @@ function hideTimer() {
 
 // ------------------------------------------------------------------ barra in alto
 
+// ------------------------------------------------------------------ chat della tavolata
+
+let roomChatBox = null;
+let unread = 0;
+let peekTimer = null;
+
+function setupRoomChat() {
+  const panel = document.getElementById("chatPanel");
+  roomChatBox = createChatBox({
+    placeholder: "Scrivi alla tavolata…",
+    isMine: (m) => m.from === app.you,
+    onSend: (text) => app.send({ t: "chat", text }),
+    empty: "Qui si chiacchiera mentre si gioca. Niente spoiler, eh!",
+  });
+  panel.append(
+    h("div.cp-head", h("h2", "💬 La tavolata"), h("button.icon-btn", { "aria-label": "Chiudi chat", onclick: () => toggleChat(false) }, "✕")),
+    roomChatBox.el,
+  );
+  document.getElementById("btnChat").onclick = () => toggleChat();
+  document.getElementById("chatPeek").onclick = () => toggleChat(true);
+}
+
+function chatOpen() {
+  return document.getElementById("chatPanel").classList.contains("open");
+}
+
+function toggleChat(force) {
+  const panel = document.getElementById("chatPanel");
+  const open = force ?? !panel.classList.contains("open");
+  panel.classList.toggle("open", open);
+  if (open) {
+    document.getElementById("sideScores").classList.remove("open");
+    setUnread(0);
+    roomChatBox.scrollDown();
+    if (!app.spectator && matchMedia("(min-width: 700px)").matches) setTimeout(() => roomChatBox.input.focus(), 250);
+  }
+}
+
+function setUnread(n) {
+  unread = n;
+  const b = document.getElementById("chatBadge");
+  b.textContent = n > 9 ? "9+" : String(n);
+  b.classList.toggle("hidden", n === 0);
+}
+
+function onRoomChat(m) {
+  app.roomChat.push(m);
+  if (app.roomChat.length > 80) app.roomChat.shift();
+  roomChatBox.add(m);
+  for (const v of app.chatViews) v.add(m);
+  if (m.from === app.you) return;
+  const visibleInline = app.chatViews.size > 0;
+  if (!chatOpen() && !visibleInline) {
+    setUnread(unread + 1);
+    sfx("pop");
+    // anteprima del messaggio per qualche secondo
+    const peek = document.getElementById("chatPeek");
+    peek.replaceChildren(h("b", m.avatar + " " + m.name + ": "), m.text);
+    peek.classList.add("show");
+    clearTimeout(peekTimer);
+    peekTimer = setTimeout(() => peek.classList.remove("show"), 3500);
+  }
+}
+
 function setupTopbar() {
   const bs = document.getElementById("btnSound");
   const bm = document.getElementById("btnMusic");
@@ -351,6 +436,7 @@ function setupTopbar() {
   };
   const side = document.getElementById("sideScores");
   document.getElementById("btnScores").onclick = () => {
+    document.getElementById("chatPanel").classList.remove("open");
     side.classList.toggle("open");
     updateSideScores();
   };
