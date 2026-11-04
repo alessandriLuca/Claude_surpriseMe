@@ -22,7 +22,7 @@ A fine serata ci sono podio, coriandoli e **premi speciali**: *Re della Sagra*, 
 
 - **La Piazza** nella home: vedi le tavolate aperte a tutti e ti siedi con un tocco, senza codice. C'è il contatore di chi sta giocando e una chat comune per trovare compagnia.
 - **Chat della tavolata** sempre aperta, anche durante i giochi, con il contatore dei messaggi non letti. Nel Pittore la parola segreta viene bloccata: niente spoiler.
-- **Tavolata pubblica o privata**: lo decide l'host con un interruttore. Le private non compaiono nella Piazza.
+- **Tavolata privata o pubblica**: ogni tavolata nasce **privata** (si entra solo col codice); l'host può renderla pubblica con un interruttore e farla comparire nella Piazza.
 - **Turni su misura**: oltre alla durata generale, l'host sceglie quante volte disegna ognuno nel Pittore (da 1 a 4).
 
 - **Codice stanza + QR code** per entrare al volo; link condivisibile.

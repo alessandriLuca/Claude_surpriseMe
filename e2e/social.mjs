@@ -27,13 +27,16 @@ async function open(label, opts) {
   return page;
 }
 
-// Host apre una tavolata (pubblica di default)
+// Host apre una tavolata: è privata di default, la rende pubblica
 const host = await open("host", { viewport: { width: 1280, height: 900 } });
 await host.goto(BASE);
 await host.fill('input[aria-label="Il tuo nome"]', "Luca");
 await host.click("text=Apparecchia una nuova tavolata");
 await host.waitForSelector(".room-code-big");
 const code = (await host.textContent(".room-code-big")).trim();
+check("la tavolata nasce privata", (await host.evaluate(() => window.__sagra.st.isPublic)) === false);
+await host.click(".switch");
+await host.waitForFunction(() => window.__sagra.st.isPublic === true);
 
 // Uno sconosciuto arriva in home e vede la tavolata nella Piazza
 const visitor = await open("visitor", { ...devices["iPhone 13"] });
