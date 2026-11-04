@@ -16,6 +16,10 @@ Non ci sono app da installare, account da creare o file audio da scaricare: musi
 | 🕵️ | **Chi è stato?** | "Chi si addormenterebbe al proprio matrimonio?" Voto segreto: punti a chi vota con la maggioranza. |
 | 🍇 | **La Pigiatura** | 10 secondi per pestare l'uva toccando lo schermo il più veloce possibile: le botti di tutti si riempiono in diretta. |
 
+### 🔪 L'Affettatrice (gioco da solo)
+
+Su `/affettatrice` c'è un arcade a parte: dal tagliere volano pomodori, formaggi, angurie e compagnia, e tu li affetti strisciando il dito (o il mouse). Se ne fai cadere tre è finita, se tocchi un petardo 🧨 perdi una vita, il vino 🍷 vale 5 punti e più tagli in un solo gesto fanno combo. C'è una **classifica globale** di oggi e di sempre (con controlli contro i punteggi impossibili).
+
 A fine serata ci sono podio, coriandoli e **premi speciali**: *Re della Sagra*, *Riflessi da Gatto*, *Battuta d'Oro*, *Piedi d'Oro*, *Michelangelo di Paese*, *Bugiardo Patentato*, *Il Solito Sospettato*… e *Lava i Piatti* per l'ultimo.
 
 ### Altre cose belle

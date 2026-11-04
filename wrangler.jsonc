@@ -12,12 +12,14 @@
   "durable_objects": {
     "bindings": [
       { "name": "ROOMS", "class_name": "Room" },
-      { "name": "PIAZZA", "class_name": "Piazza" }
+      { "name": "PIAZZA", "class_name": "Piazza" },
+      { "name": "CLASSIFICA", "class_name": "Classifica" }
     ]
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["Room"] },
-    { "tag": "v2", "new_sqlite_classes": ["Piazza"] }
+    { "tag": "v2", "new_sqlite_classes": ["Piazza"] },
+    { "tag": "v3", "new_sqlite_classes": ["Classifica"] }
   ],
   "observability": { "enabled": true }
 }

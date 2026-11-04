@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <title>L'Affettatrice — SAGRA!</title>
+    <meta name="description" content="Affetta al volo salumi, formaggi e verdure della sagra. Occhio ai petardi! Gioco arcade con classifica." />
+    <meta name="theme-color" content="#140b2e" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Lilita+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/affettatrice.css" />
+  </head>
+  <body class="aff">
+    <canvas id="board" aria-label="Tagliere: striscia il dito per affettare"></canvas>
+    <div class="aff-hud hidden" id="hud">
+      <a class="aff-back" href="/" title="Torna alla Sagra">←</a>
+      <div class="aff-score" id="score">0</div>
+      <div class="aff-lives" id="lives"></div>
+      <button class="icon-btn" id="btnSound" title="Effetti sonori" aria-label="Effetti sonori">🔊</button>
+    </div>
+    <div class="aff-overlay" id="overlay"></div>
+    <div class="nonna" id="nonna"></div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <canvas id="confetti"></canvas>
+    <noscript>Serve JavaScript per affettare!</noscript>
+    <script type="module" src="/js/affettatrice.js"></script>
+  </body>
+</html>

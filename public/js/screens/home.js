@@ -164,6 +164,13 @@ export function renderHome(app, presetCode = "") {
         ),
       ),
     ),
+    h(
+      "a.aff-promo",
+      { href: "/affettatrice" },
+      h("span.e", "🔪"),
+      h("span", h("b", "L'Affettatrice"), h("small", "Gioco da solo: affetta al volo tutto quello che vola dal tagliere. Classifica di oggi e di sempre!")),
+      h("span.go", "Gioca ›"),
+    ),
     piazza.el,
     h(
       "div.games-preview",
