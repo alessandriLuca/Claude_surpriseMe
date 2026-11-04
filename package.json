@@ -1,0 +1,29 @@
+{
+  "name": "sagra",
+  "version": "1.0.0",
+  "description": "SAGRA! Il party game multigiocatore da sagra di paese, su Cloudflare Workers",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "e2e": "node e2e/run.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alessandriLuca/Claude_surpriseMe.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alessandriLuca/Claude_surpriseMe/issues"
+  },
+  "homepage": "https://github.com/alessandriLuca/Claude_surpriseMe#readme",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261104.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.157.0"
+  },
+  "private": true,
+  "type": "module"
+}
