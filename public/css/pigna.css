@@ -1,0 +1,158 @@
+/* Pigna trova il fazzoletto */
+
+body.pg {
+  overflow: hidden;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 196, 61, 0.18), transparent 60%),
+    linear-gradient(180deg, var(--night), var(--night-3));
+  touch-action: manipulation;
+}
+
+.pg-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 4px;
+}
+
+.pg-info {
+  margin-right: auto;
+  line-height: 1.1;
+}
+
+.pg-level {
+  font-family: var(--font-title);
+  font-size: 22px;
+  color: var(--gold);
+}
+
+.pg-room {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 248, 231, 0.75);
+}
+
+.pg-score {
+  font-family: var(--font-title);
+  font-size: 34px;
+  color: var(--gold);
+  text-shadow: 0 3px 0 var(--red-dark);
+}
+
+.pg-score.bump {
+  animation: bump 0.25s ease-out;
+}
+
+.pg-bars {
+  display: flex;
+  gap: 12px;
+  padding: 4px 14px 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pg-time,
+.pg-nose {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 150px;
+  font-weight: 900;
+}
+
+.pg-time span {
+  font-family: var(--font-title);
+  font-size: 20px;
+  min-width: 30px;
+  text-align: right;
+}
+
+.pg-timebar,
+.pg-nosebar {
+  flex: 1;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+.pg-timebar i,
+.pg-nosebar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s linear, background 0.3s;
+}
+
+.pg-timebar i {
+  background: linear-gradient(90deg, var(--green), var(--gold));
+}
+
+.pg-timebar i.hurry {
+  background: var(--red);
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+.pg-nose span {
+  font-size: 22px;
+}
+
+.pg-nose b {
+  min-width: 62px;
+  font-size: 14px;
+}
+
+.pg-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 8px;
+}
+
+.pg-stage canvas {
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  touch-action: none;
+  cursor: pointer;
+}
+
+.pg-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
+  flex-wrap: wrap;
+}
+
+.pg-controls small {
+  font-family: var(--font-body);
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.pg-hint {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 248, 231, 0.6);
+}
+
+.pg-portrait {
+  display: block;
+  margin: -6px auto 0;
+  width: 240px;
+  height: 170px;
+}
+
+body.pg .aff-logo {
+  font-size: clamp(30px, 8vw, 42px);
+}
+
+body.pg .nonna {
+  bottom: 64px;
+}

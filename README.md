@@ -16,13 +16,21 @@ Non ci sono app da installare, account da creare o file audio da scaricare: musi
 | 🕵️ | **Chi è stato?** | "Chi si addormenterebbe al proprio matrimonio?" Voto segreto: punti a chi vota con la maggioranza. |
 | 🍇 | **La Pigiatura** | 10 secondi per pestare l'uva toccando lo schermo il più veloce possibile: le botti di tutti si riempiono in diretta. |
 
+### 🔪 L'Affettatrice (gioco da solo)
+
+Su `/affettatrice` c'è un arcade a parte: dal tagliere volano pomodori, formaggi, angurie e compagnia, e tu li affetti strisciando il dito (o il mouse). Se ne fai cadere tre è finita, se tocchi un petardo 🧨 perdi una vita, il vino 🍷 vale 5 punti e più tagli in un solo gesto fanno combo. C'è una **classifica globale** di oggi e di sempre (con controlli contro i punteggi impossibili).
+
+### 🐶 Pigna trova il fazzoletto (gioco da solo)
+
+Su `/pigna` guidi Pigna, una cagnolina con un gran naso, per cucina, salotto, giardino, cantina e piazza della sagra. Il fazzoletto è nascosto in uno dei nascondigli: il **naso** in alto diventa sempre più rosso man mano che ti avvicini e Pigna scodinzola più forte. Si gioca toccando una casella (Pigna ci va da sola), con le frecce o scorrendo. Gli ossi 🦴 danno punti, il gatto 🐈 ti fa perdere 5 secondi, «Bau!» indica la strada una volta per livello. I livelli sono infiniti, sempre più grandi e sempre risolvibili, e c'è una classifica tutta sua.
+
 A fine serata ci sono podio, coriandoli e **premi speciali**: *Re della Sagra*, *Riflessi da Gatto*, *Battuta d'Oro*, *Piedi d'Oro*, *Michelangelo di Paese*, *Bugiardo Patentato*, *Il Solito Sospettato*… e *Lava i Piatti* per l'ultimo.
 
 ### Altre cose belle
 
 - **La Piazza** nella home: vedi le tavolate aperte a tutti e ti siedi con un tocco, senza codice. C'è il contatore di chi sta giocando e una chat comune per trovare compagnia.
 - **Chat della tavolata** sempre aperta, anche durante i giochi, con il contatore dei messaggi non letti. Nel Pittore la parola segreta viene bloccata: niente spoiler.
-- **Tavolata pubblica o privata**: lo decide l'host con un interruttore. Le private non compaiono nella Piazza.
+- **Tavolata privata o pubblica**: ogni tavolata nasce **privata** (si entra solo col codice); l'host può renderla pubblica con un interruttore e farla comparire nella Piazza.
 - **Turni su misura**: oltre alla durata generale, l'host sceglie quante volte disegna ognuno nel Pittore (da 1 a 4).
 
 - **Codice stanza + QR code** per entrare al volo; link condivisibile.

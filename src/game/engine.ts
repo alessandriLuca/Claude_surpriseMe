@@ -90,8 +90,8 @@ export class Engine {
   players: Player[] = [];
   private conns = new Map<string, Conn>();
   hostId: string | null = null;
-  /** se la tavolata compare nella Piazza */
-  isPublic = true;
+  /** se la tavolata compare nella Piazza (di default no: privè!) */
+  isPublic = false;
   chatLog: ChatMsg[] = [];
   private chatSeq = 0;
   private onSummary?: (s: RoomSummary) => void;

@@ -1,0 +1,188 @@
+/* L'Affettatrice */
+
+body.aff {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  background: #8c5a2e;
+}
+
+#board {
+  position: fixed;
+  inset: 0;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.aff-hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  pointer-events: none;
+}
+
+.aff-hud > * {
+  pointer-events: auto;
+}
+
+.aff-back {
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 26px;
+  font-weight: 900;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+}
+
+.aff-score {
+  font-family: var(--font-title);
+  font-size: 46px;
+  color: var(--gold);
+  text-shadow: 0 3px 0 var(--red-dark), 0 6px 14px rgba(0, 0, 0, 0.4);
+  margin-right: auto;
+  line-height: 1;
+}
+
+.aff-score.bump {
+  animation: bump 0.25s ease-out;
+}
+
+@keyframes bump {
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+.aff-lives {
+  font-size: 30px;
+  display: flex;
+  gap: 4px;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+}
+
+.aff-lives .lost {
+  filter: grayscale(1);
+  opacity: 0.3;
+  transform: scale(0.85);
+}
+
+.aff-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  overflow-y: auto;
+  background: rgba(20, 11, 46, 0.35);
+  touch-action: pan-y;
+}
+
+.aff-card {
+  width: min(460px, 100%);
+  animation: dropIn 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.aff-logo {
+  font-family: var(--font-title);
+  font-size: clamp(40px, 11vw, 58px);
+  color: var(--red);
+  text-align: center;
+  line-height: 1;
+  text-shadow: 0 4px 0 rgba(157, 2, 8, 0.25);
+  transform: rotate(-2deg);
+}
+
+.aff-tag {
+  text-align: center;
+  font-weight: 800;
+  margin: 8px 0 10px;
+}
+
+.aff-rules {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: grid;
+  gap: 4px;
+  font-size: 15px;
+}
+
+.aff-best {
+  text-align: center;
+  font-weight: 800;
+  margin: 0 0 10px;
+}
+
+.aff-over {
+  font-family: var(--font-title);
+  font-size: 30px;
+  color: var(--red);
+  text-align: center;
+}
+
+.aff-final {
+  font-family: var(--font-title);
+  font-size: 86px;
+  text-align: center;
+  color: var(--ink);
+  line-height: 1;
+  margin: 4px 0;
+}
+
+.aff-card h3 {
+  font-family: var(--font-title);
+  font-weight: 400;
+  margin: 0;
+  color: var(--ink);
+}
+
+.aff-board {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.aff-board li {
+  display: grid;
+  grid-template-columns: 30px 30px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  border-radius: 10px;
+  padding: 5px 10px;
+  font-size: 15px;
+}
+
+.aff-board li.me {
+  outline: 3px solid var(--gold);
+}
+
+.aff-board .pos {
+  font-family: var(--font-title);
+  color: var(--ink-soft);
+}
+
+.aff-board .nm {
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.aff .nonna {
+  bottom: 12px;
+}

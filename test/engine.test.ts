@@ -539,12 +539,12 @@ describe("chat della tavolata", () => {
     const { client, engine } = setup();
     const a = client("Gino");
     const b = client("Pina");
-    expect(engine.summary().public).toBe(true);
-    b.send({ t: "setPublic", value: false });
-    expect(engine.summary().public).toBe(true);
-    a.send({ t: "setPublic", value: false });
+    expect(engine.summary().public).toBe(false); // di default è privata
+    b.send({ t: "setPublic", value: true });
     expect(engine.summary().public).toBe(false);
-    expect(b.state.isPublic).toBe(false);
+    a.send({ t: "setPublic", value: true });
+    expect(engine.summary().public).toBe(true);
+    expect(b.state.isPublic).toBe(true);
   });
 });
 
@@ -555,9 +555,9 @@ describe("riassunto per la Piazza", () => {
     const e = new Engine({ code: "TEST", scheduler: clock, onSummary: (s) => out.push(s) });
     const a = new FakeClient(e, "c1");
     a.join("Luca");
-    expect(out.at(-1)).toMatchObject({ host: "Luca", public: true, players: 1, connected: 1 });
-    a.send({ t: "setPublic", value: false });
-    expect(out.at(-1).public).toBe(false);
+    expect(out.at(-1)).toMatchObject({ host: "Luca", public: false, players: 1, connected: 1 });
+    a.send({ t: "setPublic", value: true });
+    expect(out.at(-1).public).toBe(true);
     const n = out.length;
     a.send({ t: "react", emoji: "🔥" });
     expect(out.length).toBe(n); // niente di nuovo, niente notifica
