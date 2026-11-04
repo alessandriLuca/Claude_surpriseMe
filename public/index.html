@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>SAGRA! Il party game di paese</title>
+    <meta name="description" content="Il party game multigiocatore da sagra di paese: battute, disegni, bugie e caffè. Si gioca col telefono, presenta Nonna Pina." />
+    <meta name="theme-color" content="#140b2e" />
+    <meta property="og:title" content="SAGRA! Il party game di paese" />
+    <meta property="og:description" content="Botta e Risposta, Pittore Maledetto, Il Bugiardo, Chi è stato? ed Espresso Express. Presenta Nonna Pina." />
+    <meta property="og:image" content="/og.svg" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Lilita+One&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="lights" aria-hidden="true"></div>
+    <div class="timer hidden" id="timer"></div>
+    <div class="countdown hidden" id="countdown"></div>
+    <header class="topbar" id="topbar">
+      <div class="brand" id="brand" title="Torna alla home">SAGRA!</div>
+      <div class="code-pill hidden" id="codePill"></div>
+      <button class="icon-btn hidden" id="btnScores" title="Classifica" aria-label="Classifica">🏆</button>
+      <button class="icon-btn" id="btnVoice" title="Voce della nonna" aria-label="Voce della nonna">🗣️</button>
+      <button class="icon-btn" id="btnMusic" title="Musica" aria-label="Musica">🪗</button>
+      <button class="icon-btn" id="btnSound" title="Effetti sonori" aria-label="Effetti sonori">🔊</button>
+    </header>
+    <aside class="side-scores" id="sideScores" aria-label="Classifica"></aside>
+    <main id="app"></main>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <div class="nonna" id="nonna"></div>
+    <div class="react-bar hidden" id="reactBar"></div>
+    <div class="conn-banner hidden" id="connBanner">Riconnessione…</div>
+    <canvas id="confetti"></canvas>
+    <noscript>Serve JavaScript per giocare alla Sagra!</noscript>
+    <script src="/vendor/qrcode.js"></script>
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>

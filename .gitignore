@@ -1,0 +1,7 @@
+node_modules/
+.wrangler/
+.dev.vars
+e2e/shots/
+*.log
+sagra-progetto.zip
+sagra.bundle
