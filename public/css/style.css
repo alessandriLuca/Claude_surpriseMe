@@ -2176,3 +2176,499 @@ body.tv .barrel .litres {
 body.tv .barrel .who {
   font-size: 18px;
 }
+
+/* ------------------------------------------------------------- chat (widget) */
+
+.icon-btn {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 900;
+  font-family: var(--font-body);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 2px var(--night);
+  animation: popIn 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.chatbox {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.cb-log {
+  flex: 1;
+  min-height: 120px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overscroll-behavior: contain;
+}
+
+.cb-empty {
+  margin: auto;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 14px;
+  padding: 16px;
+}
+
+.cb-msg {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  animation: slideIn 0.25s ease-out both;
+}
+
+.cb-msg .cb-av {
+  font-size: 24px;
+  line-height: 1;
+  flex: none;
+}
+
+.cb-body {
+  background: var(--white);
+  border-radius: 4px 14px 14px 14px;
+  padding: 6px 10px;
+  max-width: 85%;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+  word-break: break-word;
+}
+
+.cb-msg.mine {
+  flex-direction: row-reverse;
+}
+
+.cb-msg.mine .cb-body {
+  background: #fff1c2;
+  border-radius: 14px 4px 14px 14px;
+}
+
+.cb-head {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 13px;
+}
+
+.cb-head b {
+  font-weight: 900;
+}
+
+.cb-head time {
+  color: var(--ink-soft);
+  font-size: 11px;
+}
+
+.cb-text {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.cb-form {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-top: 2px solid var(--paper-2);
+  background: var(--paper);
+}
+
+.cb-input {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid var(--paper-2);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 16px;
+  outline: none;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.cb-input:focus {
+  border-color: var(--gold);
+}
+
+.cb-send {
+  border: 0;
+  background: var(--red);
+  color: var(--white);
+  border-radius: 10px;
+  padding: 0 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* pannello laterale della chat nella tavolata */
+.chat-panel {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 100vw);
+  background: var(--night-2);
+  z-index: 72;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transform: translateX(105%);
+  transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.chat-panel.open {
+  transform: none;
+}
+
+.chat-panel .chatbox {
+  flex: 1;
+}
+
+.cp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cp-head h2 {
+  color: var(--gold);
+  margin: 0;
+}
+
+body.tv .chat-panel .cb-form,
+body.tv .lobby-chat .cb-form {
+  display: none;
+}
+
+/* anteprima dei messaggi in arrivo */
+.chat-peek {
+  position: fixed;
+  right: 12px;
+  bottom: 74px;
+  z-index: 46;
+  max-width: min(340px, calc(100vw - 100px));
+  background: var(--white);
+  color: var(--ink);
+  border-radius: 14px 14px 4px 14px;
+  padding: 8px 12px;
+  font-size: 14px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  word-break: break-word;
+}
+
+.chat-peek.show {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+body.tv .chat-peek {
+  font-size: 22px;
+  max-width: 520px;
+}
+
+.lobby-chat .chatbox {
+  height: 280px;
+  border: 2px solid var(--paper-2);
+}
+
+/* interruttore pubblica/privata */
+.vis-row {
+  margin-top: 12px;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.switch .slider {
+  flex: none;
+  width: 48px;
+  height: 28px;
+  border-radius: 999px;
+  background: #c9bfa7;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.switch .slider::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s;
+}
+
+.switch input:checked + .slider {
+  background: var(--green);
+}
+
+.switch input:checked + .slider::after {
+  transform: translateX(20px);
+}
+
+.switch input:focus-visible + .slider {
+  outline: 3px solid var(--gold);
+}
+
+/* ------------------------------------------------------------- La Piazza */
+
+.piazza {
+  max-width: 1000px;
+  margin: 34px auto 0;
+}
+
+.pz-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pz-head h2 {
+  color: var(--gold);
+  font-size: 32px;
+  margin: 0;
+  text-shadow: 0 3px 0 var(--red-dark);
+}
+
+.pz-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 14px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #999;
+  flex: none;
+}
+
+.dot.live {
+  background: #3ddc68;
+  box-shadow: 0 0 0 0 rgba(61, 220, 104, 0.6);
+  animation: livePulse 1.8s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(61, 220, 104, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(61, 220, 104, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(61, 220, 104, 0);
+  }
+}
+
+.pz-sub {
+  color: rgba(255, 248, 231, 0.75);
+  margin: 8px 0 14px;
+}
+
+.pz-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 860px) {
+  .pz-grid {
+    grid-template-columns: 1.1fr 1fr;
+  }
+}
+
+.pz-col h3 {
+  font-family: var(--font-title);
+  font-weight: 400;
+  color: var(--paper);
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.pz-rooms {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.pz-room {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+  animation: popIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.pz-host {
+  font-size: 38px;
+  flex: none;
+}
+
+.pz-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pz-title {
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pz-code {
+  font-family: var(--font-title);
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: var(--red);
+  font-size: 14px;
+  background: rgba(214, 40, 40, 0.1);
+  padding: 1px 8px;
+  border-radius: 6px;
+}
+
+.pz-avatars {
+  font-size: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pz-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 700;
+  flex-wrap: wrap;
+}
+
+.pz-chip {
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.pz-chip.wait {
+  background: #dff7e4;
+  color: var(--green-dark);
+}
+
+.pz-chip.busy {
+  background: #ffeccc;
+  color: #a35400;
+}
+
+.pz-empty {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px dashed rgba(255, 248, 231, 0.25);
+  border-radius: 16px;
+  padding: 22px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--paper);
+}
+
+.pz-empty .e {
+  font-size: 40px;
+}
+
+.pz-empty span {
+  color: rgba(255, 248, 231, 0.7);
+  font-size: 14px;
+}
+
+.piazza .chatbox {
+  height: 380px;
+}
+
+@media (max-width: 520px) {
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
+    border-radius: 10px;
+  }
+  .topbar {
+    gap: 5px;
+    padding: 8px;
+  }
+  .topbar .brand {
+    font-size: 19px;
+  }
+  .topbar .code-pill {
+    font-size: 15px;
+    padding: 3px 9px;
+    letter-spacing: 2px;
+  }
+  .piazza .chatbox,
+  .pz-rooms {
+    max-height: 320px;
+  }
+  .piazza .chatbox {
+    height: 320px;
+  }
+}

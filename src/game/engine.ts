@@ -40,16 +40,46 @@ interface Conn {
   budget: number;
   budgetAt: number;
   lastReact: number;
+  lastChat: number;
 }
 
 /** messaggi al secondo concessi a ogni connessione (con un po' di scorta) */
 const MSG_RATE = 60;
 const MSG_BURST = 120;
 
+/** Riassunto pubblico della stanza, per la Piazza (lista tavolate). */
+export interface RoomSummary {
+  code: string;
+  public: boolean;
+  phase: RoomPhase;
+  players: number;
+  max: number;
+  avatars: string[];
+  host: string | null;
+  hostAvatar: string | null;
+  connected: number;
+}
+
+export interface ChatMsg {
+  id: number;
+  from: string;
+  name: string;
+  avatar: string;
+  color: string;
+  text: string;
+  ts: number;
+}
+
+export const CHAT_MAX = 140;
+const CHAT_KEEP = 60;
+const CHAT_GAP_MS = 600;
+
 export interface EngineOptions {
   code: string;
   scheduler: Scheduler;
   rng?: () => number;
+  /** chiamata (al massimo una volta per flush) quando il riassunto pubblico cambia */
+  onSummary?: (s: RoomSummary) => void;
 }
 
 export class Engine {
@@ -60,12 +90,19 @@ export class Engine {
   players: Player[] = [];
   private conns = new Map<string, Conn>();
   hostId: string | null = null;
+  /** se la tavolata compare nella Piazza */
+  isPublic = true;
+  chatLog: ChatMsg[] = [];
+  private chatSeq = 0;
+  private onSummary?: (s: RoomSummary) => void;
+  private lastSummaryKey = "";
   phase: RoomPhase = "lobby";
   private deadline: number | null = null;
 
   playlist: GameKind[] = [];
   gameIndex = -1;
   length = 2;
+  rounds: Partial<Record<GameKind, number>> = {};
   game: MiniGame | null = null;
   private lastGameScores: Record<string, number> = {};
   awards: { title: string; emoji: string; playerId: string; why: string }[] = [];
@@ -82,12 +119,13 @@ export class Engine {
     this.code = opts.code;
     this.sched = opts.scheduler;
     this.rng = opts.rng ?? Math.random;
+    this.onSummary = opts.onSummary;
   }
 
   // ---------------------------------------------------------------- connessioni
 
   connect(connId: string, send: (data: string) => void): void {
-    this.conns.set(connId, { id: connId, playerId: null, send, budget: MSG_BURST, budgetAt: this.sched.now(), lastReact: 0 });
+    this.conns.set(connId, { id: connId, playerId: null, send, budget: MSG_BURST, budgetAt: this.sched.now(), lastReact: 0, lastChat: 0 });
     this.raw(connId, { t: "hello", code: this.code, avatars: AVATARS, games: GAMES, order: GAME_ORDER });
   }
 
@@ -169,8 +207,17 @@ export class Engine {
         if (emoji) this.broadcast({ t: "react", from: p.id, emoji });
         return;
       }
+      case "chat":
+        this.chat(conn, p, msg.text);
+        return;
+      case "setPublic":
+        if (isHost) {
+          this.isPublic = !!msg.value;
+          this.dirty = true;
+        }
+        return;
       case "start":
-        if (isHost && this.phase === "lobby") this.startParty(msg.games, msg.length);
+        if (isHost && this.phase === "lobby") this.startParty(msg.games, msg.length, msg.rounds);
         return;
       case "addBot":
         if (isHost && this.phase === "lobby") this.addBot();
@@ -223,6 +270,7 @@ export class Engine {
         this.ensureHost();
         this.dirty = true;
         this.sendCatchUp(existing.id);
+        this.raw(conn.id, { t: "chatHistory", msgs: this.chatLog });
         return;
       }
     }
@@ -265,6 +313,41 @@ export class Engine {
     this.ensureHost();
     this.dirty = true;
     this.sendCatchUp(p.id);
+    this.raw(conn.id, { t: "chatHistory", msgs: this.chatLog });
+  }
+
+  private chat(conn: Conn, p: Player, raw: unknown): void {
+    if (p.spectator) return;
+    const now = this.sched.now();
+    if (now - conn.lastChat < CHAT_GAP_MS) return;
+    const text = cleanText(raw, CHAT_MAX);
+    if (!text) return;
+    conn.lastChat = now;
+    // niente spoiler: durante il Pittore la parola segreta non passa in chat
+    if (this.game?.censor?.(text)) {
+      this.raw(conn.id, { t: "toast", text: "🤐 Niente spoiler! Le risposte si scrivono nella chat del gioco." });
+      return;
+    }
+    const m: ChatMsg = { id: ++this.chatSeq, from: p.id, name: p.name, avatar: p.avatar, color: p.color, text, ts: now };
+    this.chatLog.push(m);
+    if (this.chatLog.length > CHAT_KEEP) this.chatLog.splice(0, this.chatLog.length - CHAT_KEEP);
+    this.broadcast({ t: "chat", msg: m });
+  }
+
+  summary(): RoomSummary {
+    const active = this.activePlayers();
+    const host = this.hostId ? this.player(this.hostId) : undefined;
+    return {
+      code: this.code,
+      public: this.isPublic,
+      phase: this.phase,
+      players: active.length,
+      max: MAX_PLAYERS,
+      avatars: active.slice(0, 8).map((p) => p.avatar),
+      host: host?.name ?? null,
+      hostAvatar: host?.avatar ?? null,
+      connected: active.filter((p) => p.connected && !p.isBot).length,
+    };
   }
 
   private sendCatchUp(playerId: string): void {
@@ -351,7 +434,7 @@ export class Engine {
 
   // ---------------------------------------------------------------- flusso partita
 
-  private startParty(games: unknown, length: unknown): void {
+  private startParty(games: unknown, length: unknown, rounds?: unknown): void {
     const n = this.activePlayers().length;
     let list = Array.isArray(games)
       ? GAME_ORDER.filter((k) => games.includes(k))
@@ -362,6 +445,11 @@ export class Engine {
       return;
     }
     this.length = length === 1 || length === 3 ? (length as number) : 2;
+    this.rounds = {};
+    if (rounds && typeof rounds === "object") {
+      const r = Number((rounds as Record<string, unknown>).pittore);
+      if (Number.isInteger(r) && r >= 1 && r <= 4) this.rounds.pittore = r;
+    }
     this.playlist = list;
     for (const p of this.players) p.score = 0;
     this.awards = [];
@@ -506,6 +594,7 @@ export class Engine {
       rng: () => this.rng(),
       now: () => this.sched.now(),
       length: this.length,
+      rounds: { ...this.rounds },
       award: (a) => this.addAward(a),
       fx: (name) => this.fx(name),
     };
@@ -610,10 +699,12 @@ export class Engine {
       playlist: this.playlist,
       gameIndex: this.gameIndex,
       length: this.length,
+      rounds: this.rounds,
       currentKind: this.gameIndex >= 0 ? this.playlist[this.gameIndex] ?? null : null,
       lastGameScores: this.phase === "interlude" || this.phase === "final" ? this.lastGameScores : null,
       awards: this.phase === "final" ? this.awards : null,
       spectators: this.players.filter((p) => p.spectator && p.connected).length,
+      isPublic: this.isPublic,
     };
     const views = new Map<string, string>();
     for (const c of this.conns.values()) {
@@ -629,6 +720,14 @@ export class Engine {
         c.send(s);
       } catch {
         /* ignora */
+      }
+    }
+    if (this.onSummary) {
+      const sum = this.summary();
+      const key = JSON.stringify(sum);
+      if (key !== this.lastSummaryKey) {
+        this.lastSummaryKey = key;
+        this.onSummary(sum);
       }
     }
   }
