@@ -1,0 +1,10 @@
+{
+  "name": "SAGRA! Il party game di paese",
+  "short_name": "SAGRA!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#140b2e",
+  "theme_color": "#140b2e",
+  "lang": "it",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

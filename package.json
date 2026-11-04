@@ -20,6 +20,7 @@
   "homepage": "https://github.com/alessandriLuca/Claude_surpriseMe#readme",
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261104.1",
+    "qrcode-generator": "^1.4.4",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0",
     "wrangler": "^4.157.0"
