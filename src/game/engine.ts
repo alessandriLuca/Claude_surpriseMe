@@ -29,12 +29,22 @@ export const MAX_PLAYERS = 12;
 export const INTRO_MS = 12_000;
 export const INTERLUDE_MS = 12_000;
 const LOBBY_DROP_MS = 45_000;
+/** quanto aspettare prima di passare il ruolo di host (es. ha solo ricaricato la pagina) */
+export const HOST_GRACE_MS = 10_000;
 
 interface Conn {
   id: string;
   playerId: string | null;
   send: (data: string) => void;
+  /** secchiello per limitare i messaggi al secondo */
+  budget: number;
+  budgetAt: number;
+  lastReact: number;
 }
+
+/** messaggi al secondo concessi a ogni connessione (con un po' di scorta) */
+const MSG_RATE = 60;
+const MSG_BURST = 120;
 
 export interface EngineOptions {
   code: string;
@@ -65,6 +75,8 @@ export class Engine {
   private dropTimers = new Map<string, unknown>();
   private dirty = false;
   private gameToken = 0;
+  private hostLeftAt: number | null = null;
+  private hostTimer: unknown = null;
 
   constructor(opts: EngineOptions) {
     this.code = opts.code;
@@ -75,7 +87,7 @@ export class Engine {
   // ---------------------------------------------------------------- connessioni
 
   connect(connId: string, send: (data: string) => void): void {
-    this.conns.set(connId, { id: connId, playerId: null, send });
+    this.conns.set(connId, { id: connId, playerId: null, send, budget: MSG_BURST, budgetAt: this.sched.now(), lastReact: 0 });
     this.raw(connId, { t: "hello", code: this.code, avatars: AVATARS, games: GAMES, order: GAME_ORDER });
   }
 
@@ -99,6 +111,14 @@ export class Engine {
         this.players = this.players.filter((x) => x.id !== p.id);
       }
       this.game?.onPlayerLeft?.(p.id);
+      if (p.id === this.hostId) {
+        this.hostLeftAt = this.sched.now();
+        if (this.hostTimer) this.sched.clearTimeout(this.hostTimer);
+        this.hostTimer = this.sched.setTimeout(() => {
+          this.hostTimer = null;
+          this.run(() => this.ensureHost());
+        }, HOST_GRACE_MS + 50);
+      }
       this.ensureHost();
     });
   }
@@ -115,6 +135,13 @@ export class Engine {
       return;
     }
     if (!msg || typeof msg !== "object" || typeof msg.t !== "string") return;
+    const c = this.conns.get(connId);
+    if (!c) return;
+    const now = this.sched.now();
+    c.budget = Math.min(MSG_BURST, c.budget + ((now - c.budgetAt) / 1000) * MSG_RATE);
+    c.budgetAt = now;
+    if (c.budget < 1) return; // troppi messaggi: ignorati
+    c.budget -= 1;
     this.run(() => this.handle(connId, msg));
   }
 
@@ -135,6 +162,9 @@ export class Engine {
 
     switch (msg.t) {
       case "react": {
+        const now = this.sched.now();
+        if (now - conn.lastReact < 300) return;
+        conn.lastReact = now;
         const emoji = cleanText(msg.emoji, 8);
         if (emoji) this.broadcast({ t: "react", from: p.id, emoji });
         return;
@@ -178,7 +208,10 @@ export class Engine {
     // riconnessione con token
     if (typeof msg.token === "string" && msg.token) {
       const existing = this.players.find((x) => x.token === msg.token);
-      if (existing) {
+      // Un token preso dal localStorage condiviso (es. seconda scheda dello stesso
+      // browser) non deve "rubare" il posto a un giocatore ancora collegato.
+      const busy = !!existing && [...this.conns.values()].some((c) => c.playerId === existing.id);
+      if (existing && !(busy && msg.tokenSource === "local")) {
         conn.playerId = existing.id;
         existing.connected = true;
         const h = this.dropTimers.get(existing.id);
@@ -301,7 +334,12 @@ export class Engine {
   private ensureHost(): void {
     const humans = this.players.filter((p) => !p.isBot && !p.spectator);
     const current = this.hostId ? this.player(this.hostId) : undefined;
-    if (current && current.connected && !current.spectator) return;
+    if (current && current.connected && !current.spectator) {
+      this.hostLeftAt = null;
+      return;
+    }
+    // l'host è appena uscito: gli diamo qualche secondo per tornare
+    if (current && this.hostLeftAt != null && this.sched.now() - this.hostLeftAt < HOST_GRACE_MS) return;
     const next = humans.find((p) => p.connected);
     if (next) {
       if (next.id !== this.hostId) this.dirty = true;

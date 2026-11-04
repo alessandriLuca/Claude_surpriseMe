@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { INTERLUDE_MS, INTRO_MS, MAX_PLAYERS } from "../src/game/engine";
+import { HOST_GRACE_MS, INTERLUDE_MS, INTRO_MS, MAX_PLAYERS } from "../src/game/engine";
 import { PAROLE_RARE } from "../src/game/content/bugiardo";
 import { NO_ANSWER } from "../src/game/games/botta";
 import { setup } from "./helpers";
@@ -46,12 +46,27 @@ describe("lobby", () => {
     expect(a.state.players.length).toBe(1);
   });
 
-  it("l'host passa a un altro se si disconnette", () => {
-    const { client } = setup();
+  it("l'host passa a un altro se non torna entro qualche secondo", () => {
+    const { client, clock } = setup();
     const a = client("Gino");
     const b = client("Pina");
     a.close();
+    expect(b.state.hostId).toBe(a.id);
+    clock.advance(HOST_GRACE_MS + 100);
     expect(b.state.hostId).toBe(b.id);
+  });
+
+  it("l'host che ricarica la pagina resta host", () => {
+    const { client, clock } = setup();
+    const a = client("Gino");
+    const b = client("Pina");
+    const token = a.token;
+    a.close();
+    clock.advance(2000);
+    const again = client();
+    again.send({ t: "join", token, tokenSource: "session" });
+    clock.advance(HOST_GRACE_MS + 100);
+    expect(b.state.hostId).toBe(again.id);
   });
 
   it("solo l'host può aggiungere bot e avviare", () => {
@@ -446,5 +461,35 @@ describe("La Pigiatura", () => {
     clock.advance(10_500);
     a.act({ a: "taps", n: 5 });
     expect(a.game.mine).toBe(0);
+  });
+});
+
+describe("connessioni", () => {
+  it("una seconda scheda con token condiviso non ruba il posto", () => {
+    const { client } = setup();
+    const a = client("Gino");
+    const tab2 = client();
+    tab2.send({ t: "join", token: a.token, tokenSource: "local", name: "Pina" });
+    expect(tab2.id).not.toBe(a.id);
+    expect(tab2.state.players.length).toBe(2);
+  });
+
+  it("lo stesso token da sessione rientra nello stesso posto", () => {
+    const { client } = setup();
+    const a = client("Gino");
+    const again = client();
+    again.send({ t: "join", token: a.token, tokenSource: "session" });
+    expect(again.id).toBe(a.id);
+  });
+
+  it("i messaggi a raffica vengono limitati", () => {
+    const { client } = setup();
+    const a = client("Gino");
+    const b = client("Pina");
+    for (let i = 0; i < 50; i++) a.send({ t: "react", emoji: "🔥" });
+    expect(b.msgs.filter((m) => m.t === "react").length).toBe(1);
+    for (let i = 0; i < 500; i++) a.send({ t: "ping" });
+    const pongs = a.msgs.filter((m) => m.t === "pong").length;
+    expect(pongs).toBeLessThan(150);
   });
 });

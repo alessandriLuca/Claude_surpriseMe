@@ -71,7 +71,7 @@ function boot() {
   if (m) {
     const code = m[1].toUpperCase();
     if (params.get("tv") === "1") return joinRoom(code, { spectator: true });
-    if (storage.get("tok:" + code)) return joinRoom(code, {});
+    if (getToken(code, false).token) return joinRoom(code, { name: storage.get("name", ""), avatar: storage.get("avatar") });
     return renderHome(app, code);
   }
   renderHome(app);
@@ -116,19 +116,61 @@ function joinRoom(code, opts) {
   app.net = net;
   net.addEventListener("open", () => {
     document.getElementById("connBanner").classList.add("hidden");
-    const token = storage.get("tok:" + code);
-    if (token) net.send({ t: "join", token, spectator: app.spectator });
+    const { token, source } = getToken(code, app.spectator);
+    if (token) net.send({ t: "join", token, tokenSource: source, spectator: app.spectator, name: opts.name, avatar: opts.avatar });
     else if (app.spectator) net.send({ t: "join", spectator: true });
     else net.send({ t: "join", name: opts.name, avatar: opts.avatar });
   });
   net.addEventListener("down", () => document.getElementById("connBanner").classList.remove("hidden"));
   net.addEventListener("fatal", (e) => {
     toast(e.detail, "err");
-    storage.del("tok:" + code);
+    forgetToken(code);
     goHome();
   });
   net.addEventListener("msg", (e) => onMessage(e.detail));
   net.connect();
+}
+
+// ------------------------------------------------------------------ token
+
+// Il token di ogni scheda sta in sessionStorage (così due schede sono due giocatori);
+// una copia in localStorage permette di rientrare dopo aver chiuso il browser.
+function tokenKey(code, spectator) {
+  return (spectator ? "tv:" : "tok:") + code;
+}
+
+function getToken(code, spectator) {
+  const k = tokenKey(code, spectator);
+  try {
+    const t = sessionStorage.getItem("sagra:" + k);
+    if (t) return { token: t, source: "session" };
+  } catch {
+    /* niente */
+  }
+  const t = storage.get(k);
+  return t ? { token: t, source: "local" } : { token: null, source: null };
+}
+
+function saveToken(code, spectator, token) {
+  const k = tokenKey(code, spectator);
+  try {
+    sessionStorage.setItem("sagra:" + k, token);
+  } catch {
+    /* niente */
+  }
+  storage.set(k, token);
+}
+
+function forgetToken(code) {
+  for (const sp of [false, true]) {
+    const k = tokenKey(code, sp);
+    try {
+      sessionStorage.removeItem("sagra:" + k);
+    } catch {
+      /* niente */
+    }
+    storage.del(k);
+  }
 }
 
 // ------------------------------------------------------------------ messaggi
@@ -140,7 +182,7 @@ function onMessage(m) {
       break;
     case "joined":
       app.you = m.id;
-      storage.set("tok:" + app.code, m.token);
+      saveToken(app.code, app.spectator, m.token);
       if (!app.spectator) storage.set("lastRoom", app.code);
       break;
     case "state": {
@@ -172,7 +214,7 @@ function onMessage(m) {
     case "err":
       toast(m.msg, "err");
       if (m.fatal) {
-        storage.del("tok:" + app.code);
+        forgetToken(app.code);
         goHome();
       } else if (!app.st) {
         // join rifiutato: torna alla home col codice precompilato
@@ -184,7 +226,7 @@ function onMessage(m) {
       break;
     case "kicked":
       toast("Sei stato accompagnato alla porta dall'host. 🚪", "err");
-      storage.del("tok:" + app.code);
+      forgetToken(app.code);
       goHome();
       break;
     case "redraw":
