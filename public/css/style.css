@@ -1968,3 +1968,211 @@ body.tv .nonna .bubble {
     font-size: 19px;
   }
 }
+
+/* ------------------------------------------------------------- La Pigiatura */
+
+.stomp-pad {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 38vh;
+  border: 0;
+  border-radius: 24px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  overflow: hidden;
+  color: var(--white);
+  background: radial-gradient(circle at 50% 40%, #6a2c91, #3a1153);
+  box-shadow: var(--shadow), inset 0 -10px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 0.05s;
+}
+
+.stomp-pad.go {
+  background: radial-gradient(circle at 50% 40%, #9d4edd, #5a189a);
+}
+
+.stomp-pad:disabled {
+  cursor: default;
+}
+
+.stomp-pad.left {
+  transform: scale(0.985) rotate(-0.6deg);
+}
+
+.stomp-pad.right {
+  transform: scale(0.985) rotate(0.6deg);
+}
+
+.stomp-pad .grapes {
+  font-size: 44px;
+  letter-spacing: 6px;
+}
+
+.stomp-pad .big {
+  font-family: var(--font-title);
+  font-size: clamp(54px, 14vw, 110px);
+  line-height: 1;
+  text-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+.stomp-pad .count {
+  font-weight: 900;
+  font-size: 22px;
+  margin-top: 8px;
+  color: #f3d9ff;
+}
+
+.splash {
+  position: absolute;
+  font-size: 34px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: splash 0.6s ease-out forwards;
+}
+
+@keyframes splash {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -120%) scale(1.5) rotate(20deg);
+  }
+}
+
+.cellar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.barrel {
+  width: 92px;
+  text-align: center;
+}
+
+.barrel .litres {
+  font-family: var(--font-title);
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.barrel .cask {
+  position: relative;
+  height: 110px;
+  border-radius: 40% / 14%;
+  background: linear-gradient(90deg, #6b3e1f, #a8673a 30%, #c98a52 50%, #a8673a 70%, #6b3e1f);
+  overflow: hidden;
+  border: 3px solid #3d220f;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+
+.barrel .wine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #b5179e, #7209b7);
+  opacity: 0.92;
+  transition: height 0.25s ease-out;
+}
+
+.barrel .wine::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+}
+
+.barrel .hoop {
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  height: 7px;
+  background: #2b2b2b;
+  opacity: 0.85;
+}
+
+.barrel .hoop.h1 {
+  top: 20%;
+}
+
+.barrel .hoop.h2 {
+  bottom: 20%;
+}
+
+.barrel .who {
+  font-weight: 800;
+  font-size: 13px;
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barrel.me .who {
+  color: var(--gold);
+}
+
+/* ------------------------------------------------------------- telefono: chat del Pittore sopra */
+
+@media (max-width: 899px) {
+  .chat {
+    height: 260px;
+  }
+  .chat form {
+    order: -1;
+    border-top: 0;
+    border-bottom: 2px solid var(--paper-2);
+  }
+}
+
+body.typing .react-bar {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .cellar {
+    gap: 10px;
+  }
+  .barrel {
+    width: 70px;
+  }
+  .barrel .cask {
+    height: 84px;
+  }
+  .stomp-pad {
+    min-height: 34vh;
+  }
+}
+
+body.tv .stomp-pad {
+  min-height: 22vh;
+}
+
+body.tv .barrel {
+  width: 150px;
+}
+
+body.tv .barrel .cask {
+  height: 190px;
+}
+
+body.tv .barrel .litres {
+  font-size: 30px;
+}
+
+body.tv .barrel .who {
+  font-size: 18px;
+}

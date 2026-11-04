@@ -161,6 +161,19 @@ async function play(page) {
         }
       }
       break;
+    case "pigiatura":
+      if (g.phase === "stomp" && g.participant) {
+        const pad = await page.locator(".stomp-pad.go").boundingBox().catch(() => null);
+        if (pad) {
+          const n = 25 + Math.floor(Math.random() * 30);
+          for (let i = 0; i < n; i++) {
+            await page.mouse.click(pad.x + pad.width * (0.3 + Math.random() * 0.4), pad.y + pad.height / 2);
+            await page.waitForTimeout(40);
+            if (i === 15) await shot(page, s.key + "-stomping");
+          }
+        }
+      }
+      break;
     case "chi":
       if (g.phase === "vote" && !g.myVote) await page.click(".suspect:not([disabled])").catch(() => {});
       break;

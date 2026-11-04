@@ -13,6 +13,7 @@ const PREVIEW = [
   ["🎨", "Pittore Maledetto", "Disegna, gli altri indovinano"],
   ["🤥", "Il Bugiardo", "Inventa definizioni false"],
   ["🕵️", "Chi è stato?", "Punta il dito sugli amici"],
+  ["🍇", "La Pigiatura", "Pesta l'uva più veloce"],
   ["☕", "Espresso Express", "Riflessi da barista"],
 ];
 

@@ -49,6 +49,18 @@ export const GAMES: Record<GameKind, GameInfo> = {
     ],
     minPlayers: 1,
   },
+  pigiatura: {
+    kind: "pigiatura",
+    title: "La Pigiatura",
+    emoji: "🍇",
+    tagline: "Pesta l'uva più veloce di tutti.",
+    rules: [
+      "Al VIA tocca lo schermo più veloce che puoi: ogni tocco è una pestata.",
+      "Hai 10 secondi. Più pesti, più vino fai.",
+      "Chi riempie di più la botte vince. Usate due dita, non c'è vergogna.",
+    ],
+    minPlayers: 1,
+  },
   bugiardo: {
     kind: "bugiardo",
     title: "Il Bugiardo",
@@ -63,4 +75,4 @@ export const GAMES: Record<GameKind, GameInfo> = {
   },
 };
 
-export const GAME_ORDER: GameKind[] = ["espresso", "botta", "pittore", "bugiardo", "chi"];
+export const GAME_ORDER: GameKind[] = ["espresso", "botta", "pigiatura", "pittore", "bugiardo", "chi"];

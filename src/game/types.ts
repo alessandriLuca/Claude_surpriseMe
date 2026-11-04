@@ -1,6 +1,6 @@
 // Tipi condivisi del motore di gioco della Sagra.
 
-export type GameKind = "botta" | "pittore" | "chi" | "espresso" | "bugiardo";
+export type GameKind = "botta" | "pittore" | "chi" | "espresso" | "bugiardo" | "pigiatura";
 
 export interface Player {
   id: string;

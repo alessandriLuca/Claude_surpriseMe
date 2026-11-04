@@ -46,6 +46,10 @@ export const NONNA = {
       "Espresso Express! Quando esce il caffè, premete. Né prima né dopo!",
       "Vediamo chi ha i riflessi pronti. Io alla vostra età prendevo le mosche al volo.",
     ],
+    pigiatura: [
+      "La Pigiatura! Togliete le scarpe e pestate, che quest'anno il vino lo facciamo noi.",
+      "Pestate l'uva! Il nonno alla vostra età ne pestava una botte al giorno.",
+    ],
     bugiardo: [
       "Il Bugiardo! Inventatevi le balle più credibili, come fa lo zio con le tasse.",
       "Parole strane, definizioni false. Vediamo chi la racconta meglio.",

@@ -9,10 +9,11 @@ import { CHI } from "./screens/chi.js";
 import { ESPRESSO } from "./screens/espresso.js";
 import { renderHome } from "./screens/home.js";
 import { LOBBY } from "./screens/lobby.js";
+import { PIGIATURA } from "./screens/pigiatura.js";
 import { PITTORE } from "./screens/pittore.js";
 import { buzz, clear, h, storage, toast } from "./ui.js";
 
-const GAME_SCREENS = { espresso: ESPRESSO, botta: BOTTA, pittore: PITTORE, chi: CHI, bugiardo: BUGIARDO };
+const GAME_SCREENS = { espresso: ESPRESSO, botta: BOTTA, pittore: PITTORE, chi: CHI, bugiardo: BUGIARDO, pigiatura: PIGIATURA };
 const REACTIONS = ["🤌", "😂", "👏", "🍕", "😱", "🔥", "💩", "❤️"];
 
 export const app = {
@@ -59,6 +60,11 @@ function boot() {
   requestAnimationFrame(timerLoop);
   document.addEventListener("pointerdown", unlockAudio, { once: false, passive: true });
   document.addEventListener("keydown", unlockAudio, { once: true });
+  // quando si scrive (tastiera aperta sul telefono) la barra delle reazioni si toglie di mezzo
+  document.addEventListener("focusin", (e) => {
+    if (e.target.matches("input, textarea")) document.body.classList.add("typing");
+  });
+  document.addEventListener("focusout", () => document.body.classList.remove("typing"));
 
   const m = location.pathname.match(/^\/([A-Za-z]{4})\/?$/);
   const params = new URLSearchParams(location.search);

@@ -94,7 +94,7 @@ describe("serata completa con i bot", () => {
     const a = client("Gino");
     for (let i = 0; i < 4; i++) a.send({ t: "addBot" });
     a.send({ t: "start", length: 1 });
-    expect(a.state.playlist).toEqual(["espresso", "botta", "pittore", "bugiardo", "chi"]);
+    expect(a.state.playlist).toEqual(["espresso", "botta", "pigiatura", "pittore", "bugiardo", "chi"]);
 
     // l'umano gioca in modo semplice: risponde a tutto quello che può
     let guard = 0;
@@ -404,5 +404,47 @@ describe("intervalli", () => {
     s.clock.advance(INTERLUDE_MS);
     expect(a.state.phase).toBe("intro");
     expect(a.state.currentKind).toBe("bugiardo");
+  });
+});
+
+describe("La Pigiatura", () => {
+  function startPigia() {
+    const s = setup(21);
+    const a = s.client("A");
+    const b = s.client("B");
+    a.send({ t: "start", games: ["pigiatura"], length: 1 });
+    s.clock.advance(INTRO_MS);
+    s.clock.advance(3500); // ready → stomp
+    return { ...s, a, b };
+  }
+
+  it("chi pesta di più vince", () => {
+    const { a, b, clock } = startPigia();
+    expect(a.game.phase).toBe("stomp");
+    for (let i = 0; i < 20; i++) {
+      clock.advance(500);
+      a.act({ a: "taps", n: 6 });
+      b.act({ a: "taps", n: 3 });
+    }
+    clock.advance(1000);
+    expect(a.game.phase).toBe("result");
+    const r = a.game.results;
+    expect(r[0].id).toBe(a.id);
+    expect(r[0].points).toBe(300);
+    expect(r[1].points).toBe(200);
+  });
+
+  it("un autoclicker viene limitato", () => {
+    const { a, clock } = startPigia();
+    clock.advance(1000);
+    a.act({ a: "taps", n: 5000 });
+    expect(a.game.mine).toBeLessThanOrEqual(1 * 20 + 2);
+  });
+
+  it("le pestate fuori tempo non contano", () => {
+    const { a, clock } = startPigia();
+    clock.advance(10_500);
+    a.act({ a: "taps", n: 5 });
+    expect(a.game.mine).toBe(0);
   });
 });
